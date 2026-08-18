@@ -1,0 +1,8 @@
+ktor:
+  deployment:
+    port: 8080
+  application:
+    modules:
+      - com.vinish.SerializationKt.configureSerialization
+      - com.vinish.StatusPagesKt.configureStatusPages
+      - com.vinish.RoutingKt.configureRouting
