@@ -1,5 +1,6 @@
 package com.vinish
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -34,6 +35,21 @@ fun Application.configureRouting() {
         //return all tasks
         get("/api/tasks") {
             call.respond(tasks)
+        }
+
+        // return the requested task
+        get("/api/task/{id}"){
+
+            //extract the id from request
+            val id = call.parameters["id"]?.toIntOrNull()
+
+            val task = tasks.find { it.id == id }
+
+            if (task != null){
+                call.respond(task)
+            } else{
+                call.respond(HttpStatusCode.NotFound)
+            }
         }
 
     }
