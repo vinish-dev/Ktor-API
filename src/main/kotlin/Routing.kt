@@ -2,12 +2,13 @@ package com.vinish
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
+import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting() {
 
-    val tasks = listOf<Task>(
+    val tasks = mutableListOf<Task>(
         Task(
             id = 1,
             title = "Learn Ktor",
@@ -23,12 +24,15 @@ fun Application.configureRouting() {
     )
 
     routing {
+
+        // default
         get("/") {
             call.respondText("Hello, World!")
         }
         get("/json/kotlinx-serialization") {
             call.respond(mapOf("hello" to "world"))
         }
+
 
         //my end points
 
@@ -38,7 +42,7 @@ fun Application.configureRouting() {
         }
 
         // return the requested task
-        get("/api/task/{id}"){
+        get("/api/tasks/{id}"){
 
             //extract the id from request
             val id = call.parameters["id"]?.toIntOrNull()
@@ -50,6 +54,14 @@ fun Application.configureRouting() {
             } else{
                 call.respond(HttpStatusCode.NotFound)
             }
+        }
+
+        // receive task from client
+        post("/api/tasks"){
+            val task = call.receive<Task>()
+
+            tasks.add(task)
+            call.respond(HttpStatusCode.Created, task)
         }
 
     }
