@@ -5,23 +5,11 @@ import io.ktor.server.application.*
 import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import com.vinish.TaskRepository
 
 fun Application.configureRouting() {
 
-    val tasks = mutableListOf<Task>(
-        Task(
-            id = 1,
-            title = "Learn Ktor",
-            description = "Build a CRUD API",
-            completed = false
-        ),
-        Task(
-            id = 2,
-            title = "Build compose app",
-            description = "Connect it to Ktor srever",
-            completed = false
-        )
-    )
+val repository = TaskRepository()
 
     routing {
 
@@ -38,7 +26,7 @@ fun Application.configureRouting() {
 
         //return all tasks
         get("/api/tasks") {
-            call.respond(tasks)
+            call.respond(repository.getAll())
         }
 
         // return the requested task
@@ -47,7 +35,7 @@ fun Application.configureRouting() {
             //extract the id from request
             val id = call.parameters["id"]?.toIntOrNull()
 
-            val task = tasks.find { it.id == id }
+            val task = repository.getById(id ?: -1)
 
             if (task != null){
                 call.respond(task)
@@ -56,11 +44,11 @@ fun Application.configureRouting() {
             }
         }
 
-        // receive task from client and add it to task list
+        // add task
         post("/api/tasks"){
             val task = call.receive<Task>()
 
-            tasks.add(task)
+            repository.addTask(task)
             call.respond(HttpStatusCode.Created, task)
         }
 
@@ -70,23 +58,22 @@ fun Application.configureRouting() {
             val id = call.parameters["id"]?.toIntOrNull()
             val updatedTask = call.receive<Task>()
 
-            // find index: id 1 is index 0
-            val index = tasks.indexOfFirst { it.id == id }
+            val index = repository.updateTask(id ?: -1, updatedTask)
 
-            if (index != -1){
-                tasks[index] = updatedTask
+            if (index != null){
                 call.respond(updatedTask)
             } else {
                 call.respond(HttpStatusCode.NotFound)
             }
         }
 
+        //delete task
         delete("/api/tasks/{id}"){
 
             val id = call.parameters["id"]?.toIntOrNull()
 
             // true if task was removed from the list
-            val removed: Boolean = tasks.removeIf { it.id == id }
+            val removed: Boolean = repository.deleteTask(id ?: -1)
 
             if (removed){
                 call.respond(HttpStatusCode.NoContent)
