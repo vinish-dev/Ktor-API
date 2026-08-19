@@ -56,7 +56,7 @@ fun Application.configureRouting() {
             }
         }
 
-        // receive task from client
+        // receive task from client and add it to task list
         post("/api/tasks"){
             val task = call.receive<Task>()
 
@@ -64,5 +64,21 @@ fun Application.configureRouting() {
             call.respond(HttpStatusCode.Created, task)
         }
 
+        //update existing task
+        put("/api/tasks/{id}") {
+
+            val id = call.parameters["id"]?.toIntOrNull()
+            val updatedTask = call.receive<Task>()
+
+            // find index: id 1 is index 0
+            val index = tasks.indexOfFirst { it.id == id }
+
+            if (index != -1){
+                tasks[index] = updatedTask
+                call.respond(updatedTask)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
+        }
     }
 }
