@@ -80,5 +80,19 @@ fun Application.configureRouting() {
                 call.respond(HttpStatusCode.NotFound)
             }
         }
+
+        delete("/api/tasks/{id}"){
+
+            val id = call.parameters["id"]?.toIntOrNull()
+
+            // true if task was removed from the list
+            val removed: Boolean = tasks.removeIf { it.id == id }
+
+            if (removed){
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
+        }
     }
 }
