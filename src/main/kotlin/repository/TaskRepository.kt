@@ -1,9 +1,11 @@
 package com.vinish.repository
 
+import com.vinish.model.CreateTaskRequest
 import com.vinish.model.Task
 
 class TaskRepository {
 
+    private var nextId = 3
     // task list
     private val tasks = mutableListOf<Task>(
         Task(
@@ -29,7 +31,14 @@ class TaskRepository {
     }
 
     // add task
-    fun addTask(task: Task): Task {
+    fun addTask(request: CreateTaskRequest): Task {
+        val task = Task(
+            id = nextId++,
+            title = request.title,
+            description = request.description,
+            completed = request.completed
+        )
+
         tasks.add(task)
         return task
     }

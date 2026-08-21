@@ -1,5 +1,6 @@
 package com.vinish.plugins
 
+import com.vinish.model.CreateTaskRequest
 import com.vinish.repository.TaskRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
@@ -47,9 +48,9 @@ val repository = TaskRepository()
 
         // add task
         post("/api/tasks"){
-            val task = call.receive<Task>()
+            val request = call.receive<CreateTaskRequest>()
 
-            repository.addTask(task)
+            val task = repository.addTask(request)
             call.respond(HttpStatusCode.Created, task)
         }
 
