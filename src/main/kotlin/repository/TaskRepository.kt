@@ -2,6 +2,7 @@ package com.vinish.repository
 
 import com.vinish.model.CreateTaskRequest
 import com.vinish.model.Task
+import com.vinish.model.UpdateTaskRequest
 
 class TaskRepository {
 
@@ -43,15 +44,22 @@ class TaskRepository {
         return task
     }
 
-    fun updateTask(id: Int, task: Task): Task?{
+    fun updateTask(id: Int, request: UpdateTaskRequest): Task?{
         val index = tasks.indexOfFirst { it.id == id }  //find index of the task in list
 
         if (index == -1){
             return null
         }
 
-        tasks[index] = task //update
-        return task
+        val updatedTask = Task(
+            id = id,
+            title = request.title,
+            description = request.description,
+            completed = request.completed
+        )
+
+        tasks[index] = updatedTask //update
+        return updatedTask
     }
 
     fun deleteTask(id: Int): Boolean{

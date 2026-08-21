@@ -1,6 +1,7 @@
 package com.vinish.plugins
 
 import com.vinish.model.CreateTaskRequest
+import com.vinish.model.ErrorResponse
 import com.vinish.repository.TaskRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
@@ -8,6 +9,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import com.vinish.model.Task
+import com.vinish.model.UpdateTaskRequest
 
 fun Application.configureRouting() {
 
@@ -42,7 +44,10 @@ val repository = TaskRepository()
             if (task != null){
                 call.respond(task)
             } else{
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    ErrorResponse("Task not found")
+                )
             }
         }
 
@@ -58,14 +63,26 @@ val repository = TaskRepository()
         put("/api/tasks/{id}") {
 
             val id = call.parameters["id"]?.toIntOrNull()
-            val updatedTask = call.receive<Task>()
 
-            val index = repository.updateTask(id ?: -1, updatedTask)
+            //non int id
+            if (id==null){
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    ErrorResponse("Invalid task ID")
+                )
+                return@put
+            }
 
-            if (index != null){
+            val request = call.receive<UpdateTaskRequest>()
+            val updatedTask = repository.updateTask(id ?: -1, request)
+
+            if (updatedTask != null){
                 call.respond(updatedTask)
             } else {
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    ErrorResponse("Task not found")
+                )  //task id not found
             }
         }
 
@@ -80,7 +97,10 @@ val repository = TaskRepository()
             if (removed){
                 call.respond(HttpStatusCode.NoContent)
             } else {
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    ErrorResponse("Task not found")
+                    )
             }
         }
     }
