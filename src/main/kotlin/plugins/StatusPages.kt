@@ -1,4 +1,4 @@
-package com.vinish
+package com.vinish.plugins
 
 import io.ktor.http.*
 import io.ktor.server.application.*

@@ -1,4 +1,6 @@
-package com.vinish
+package com.vinish.repository
+
+import com.vinish.model.Task
 
 class TaskRepository {
 

@@ -3,6 +3,6 @@ ktor:
     port: 8080
   application:
     modules:
-      - com.vinish.SerializationKt.configureSerialization
-      - com.vinish.StatusPagesKt.configureStatusPages
-      - com.vinish.RoutingKt.configureRouting
+      - com.vinish.plugins.RoutingKt.configureRouting
+      - com.vinish.plugins.StatusPagesKt.configureStatusPages
+      - com.vinish.plugins.SerializationKt.configureSerialization

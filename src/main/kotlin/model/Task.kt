@@ -1,4 +1,4 @@
-package com.vinish
+package com.vinish.model
 
 import kotlinx.serialization.Serializable
 
