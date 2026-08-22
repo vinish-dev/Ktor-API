@@ -2,14 +2,13 @@ package com.vinish.plugins
 
 import com.vinish.model.CreateTaskRequest
 import com.vinish.model.ErrorResponse
+import com.vinish.model.UpdateTaskRequest
 import com.vinish.repository.TaskRepository
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.receive
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import com.vinish.model.Task
-import com.vinish.model.UpdateTaskRequest
 
 fun Application.configureRouting() {
 
@@ -98,7 +97,7 @@ val repository = TaskRepository()
             }
 
 
-            val updatedTask = repository.updateTask(id ?: -1, request)
+            val updatedTask = repository.updateTask(id, request)
 
             if (updatedTask != null){
                 call.respond(updatedTask)
