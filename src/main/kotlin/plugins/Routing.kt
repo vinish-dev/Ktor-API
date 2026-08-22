@@ -55,6 +55,18 @@ val repository = TaskRepository()
         post("/api/tasks"){
             val request = call.receive<CreateTaskRequest>()
 
+            if (request.title.isBlank()){
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Title cannot be blank"))
+                return@post
+            }
+
+            if (request.description.isBlank()){
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Description cannot be blank"))
+                return@post
+            }
+
+
+
             val task = repository.addTask(request)
             call.respond(HttpStatusCode.Created, task)
         }
@@ -74,6 +86,18 @@ val repository = TaskRepository()
             }
 
             val request = call.receive<UpdateTaskRequest>()
+
+            if (request.title.isBlank()){
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Title cannot be blank"))
+                return@put
+            }
+
+            if (request.description.isBlank()){
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Description cannot be blank"))
+                return@put
+            }
+
+
             val updatedTask = repository.updateTask(id ?: -1, request)
 
             if (updatedTask != null){
