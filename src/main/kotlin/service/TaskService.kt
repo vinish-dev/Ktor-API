@@ -4,6 +4,7 @@ import com.vinish.model.CreateTaskRequest
 import com.vinish.model.Task
 import com.vinish.model.UpdateTaskRequest
 import com.vinish.repository.TaskRepository
+import kotlin.jvm.Throws
 
 class TaskService(
     val repository: TaskRepository
@@ -33,12 +34,12 @@ class TaskService(
     }
 
     private fun validate(title: String, description: String){
-        require(title.isNotBlank()){
-            "Title cannot be blank"
+        if(title.isBlank()){
+            throw InvalidTaskException("Title cannot be blank")
         }
 
-        require(description.isNotBlank()){
-            "Description cannot be blank"
+        if(description.isBlank()){
+            throw InvalidTaskException("Description cannot be blank")
         }
     }
 }
