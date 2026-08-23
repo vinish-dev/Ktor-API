@@ -4,6 +4,7 @@ import com.vinish.model.CreateTaskRequest
 import com.vinish.model.ErrorResponse
 import com.vinish.model.UpdateTaskRequest
 import com.vinish.repository.TaskRepository
+import com.vinish.service.TaskService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -12,7 +13,9 @@ import io.ktor.server.routing.*
 
 fun Application.configureRouting() {
 
-val repository = TaskRepository()
+    val repository = TaskRepository()
+    val service: TaskService = TaskService(repository)
+
 
     routing {
 
@@ -29,26 +32,26 @@ val repository = TaskRepository()
 
         //return all tasks
         get("/api/tasks") {
-            call.respond(repository.getAll())
+            call.respond(service.getAll())
         }
 
         // return the requested task
-        get("/api/tasks/{id}"){
+        get("/api/tasks/{id}") {
 
             //extract the id from request
             val id = call.parameters["id"]?.toIntOrNull()
 
             // for non int id
-            if (id == null){
+            if (id == null) {
                 call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid task Id"))
                 return@get
             }
 
-            val task = repository.getById(id)
+            val task = service.getById(id)
 
-            if (task != null){
+            if (task != null) {
                 call.respond(task)
-            } else{
+            } else {
                 call.respond(
                     HttpStatusCode.NotFound,
                     ErrorResponse("Task not found")
@@ -57,22 +60,11 @@ val repository = TaskRepository()
         }
 
         // add task
-        post("/api/tasks"){
+        post("/api/tasks") {
             val request = call.receive<CreateTaskRequest>()
 
-            if (request.title.isBlank()){
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Title cannot be blank"))
-                return@post
-            }
+            val task = service.create(request)
 
-            if (request.description.isBlank()){
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Description cannot be blank"))
-                return@post
-            }
-
-
-
-            val task = repository.addTask(request)
             call.respond(HttpStatusCode.Created, task)
         }
 
@@ -82,7 +74,7 @@ val repository = TaskRepository()
             val id = call.parameters["id"]?.toIntOrNull()
 
             //non int id
-            if (id==null){
+            if (id == null) {
                 call.respond(
                     HttpStatusCode.BadRequest,
                     ErrorResponse("Invalid task Id")
@@ -92,20 +84,9 @@ val repository = TaskRepository()
 
             val request = call.receive<UpdateTaskRequest>()
 
-            if (request.title.isBlank()){
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Title cannot be blank"))
-                return@put
-            }
+            val updatedTask = service.update(id = id, request = request)
 
-            if (request.description.isBlank()){
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Description cannot be blank"))
-                return@put
-            }
-
-
-            val updatedTask = repository.updateTask(id, request)
-
-            if (updatedTask != null){
+            if (updatedTask != null) {
                 call.respond(updatedTask)
             } else {
                 call.respond(
@@ -116,25 +97,25 @@ val repository = TaskRepository()
         }
 
         //delete task
-        delete("/api/tasks/{id}"){
+        delete("/api/tasks/{id}") {
 
             val id = call.parameters["id"]?.toIntOrNull()
 
-            if(id == null){
+            if (id == null) {
                 call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid task Id"))
                 return@delete
             }
 
             // true if task was removed from the list
-            val removed: Boolean = repository.deleteTask(id)
+            val removed: Boolean = service.delete(id = id)
 
-            if (removed){
+            if (removed) {
                 call.respond(HttpStatusCode.NoContent)
             } else {
                 call.respond(
                     HttpStatusCode.NotFound,
                     ErrorResponse("Task not found")
-                    )
+                )
             }
         }
     }
