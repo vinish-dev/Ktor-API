@@ -38,7 +38,13 @@ val repository = TaskRepository()
             //extract the id from request
             val id = call.parameters["id"]?.toIntOrNull()
 
-            val task = repository.getById(id ?: -1)
+            // for non int id
+            if (id == null){
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid task Id"))
+                return@get
+            }
+
+            val task = repository.getById(id)
 
             if (task != null){
                 call.respond(task)
@@ -79,7 +85,7 @@ val repository = TaskRepository()
             if (id==null){
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    ErrorResponse("Invalid task ID")
+                    ErrorResponse("Invalid task Id")
                 )
                 return@put
             }
@@ -114,8 +120,13 @@ val repository = TaskRepository()
 
             val id = call.parameters["id"]?.toIntOrNull()
 
+            if(id == null){
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid task Id"))
+                return@delete
+            }
+
             // true if task was removed from the list
-            val removed: Boolean = repository.deleteTask(id ?: -1)
+            val removed: Boolean = repository.deleteTask(id)
 
             if (removed){
                 call.respond(HttpStatusCode.NoContent)
